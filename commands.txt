@@ -1,0 +1,100 @@
+########################################### Exercise 1 ##########################################
+-- Simple Join exercise
+$ pyspark
+
+>>>fileA = sc.textFile("spark-join1/join1_FileA.txt")
+>>>fileA.collect()
+
+>>>fileB = sc.textFile("spark-join1/join1_FileB.txt")
+>>>fileB.collect()
+
+>>>def split_fileA(line):
+   line = line.split(",")
+   word = line[0]
+   count = line[1]
+   return (word, count)
+
+>>>fileA_data = fileA.map(split_fileA)
+>>>fileA_data.collect()
+
+>>>def split_fileB(line):
+   line = line.split(",")
+   key_in = line[0].split(" ")
+   count = line[1]
+   date = key_in[0]
+   word = key_in[1]
+   return (word, date + " " + count)
+
+>>>test_line = "Jan-01 yazdani,123"
+
+>>>split_fileB(test_line)
+
+>>>fileB_data = fileB.map(split_fileB)
+>>>fileB_data.collect()
+
+>>>fileB_joined_fileA = fileB_data.join(fileA_data)
+>>>fileB_joined_fileA.collect()
+
+-----------------------------------------------------------------------
+-- Advanced Join exercise
+>>>show_views_file = sc.textFile("spark-join2/join2_gennum?.txt")
+>>>show_views_file.take(3)
+
+def split_show_views(line):
+   line = line.split(",")
+   show = line[0]
+   views = line[1]
+   return (show,int(views))
+
+>>>show_views = show_views_file.map(split_show_views)
+>>>show_views.take(3)
+
+>>>show_channel_file = sc.textFile("spark-join2/join2_genchan?.txt")
+>>>show_channel_file.take(3)
+
+def split_show_channel(line):
+   line = line.split(",")
+   show = line[0]
+   channel = line[1]
+   return (show,channel)
+
+>>>show_channel = show_channel_file.map(split_show_channel)
+>>>show_channel.take(3)
+
+>>>joined_dataset = show_views.join(show_channel)
+>>>joined_dataset.take(3)
+
+def extract_channel_views(show_views_channel):
+    show = show_views_channel[0]
+    views = show_views_channel[1][0]
+    channel = show_views_channel[1][1]
+    return (channel,int(views))
+
+>>>channel_views = joined_dataset.map(extract_channel_views)
+>>>channel_views.take(3)
+
+>>>channel_views.reduceByKey(lambda x,y:x+y).collect()
+
+########################################### Exercise 2 ##########################################
+
+$ PYSPARK_DRIVER_PYTHON=ipython 
+$ pyspark --packages com.databricks:spark-csv_2.10:1.5.0
+
+>>> yelp_df = sqlCtx.load(source='com.databricks.spark.csv', header='true', inferSchema='true', path ='file:///usr/lib/hue/apps/search/examples/collections/solr_configs_yelp_demo/index_data.csv')
+
+>>> yelp_df.printSchema()
+
+>>> yelp_df.select("cool").agg({"cool":"mean"}).collect()
+
+>>> yelp_df.filter("review_count>=10").groupBy("stars").mean("cool").collect()
+
+>>> yelp_df.filter("review_count>=10 and open=True").groupBy("stars").mean("cool").collect()
+
+>>> yelp_df.filter("review_count>=10 and open=True").groupBy("state").count().sort(desc("count")).collect()
+
+>>> yelp_df.filter("review_count>=10 and open=True").groupBy("state").count().orderBy('count', ascending=False).collect()
+
+>>> yelp_df.groupBy("business_id").count().orderBy('count', ascending=False).collect()
+
+>>> yelp_df.groupBy("business_id").count().agg({"count":"max"}).collect()
+
