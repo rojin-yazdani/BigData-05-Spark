@@ -18,7 +18,8 @@ The report of the work have done is [here](Spark-report.pdf).
 
 ------
 
-The esercise steps for Spark DataFrames are [here] (LabPractice6_Spark_DataFrames.pdf)
+The esercise steps for Spark DataFrames are [here](LabPractice6_Spark_DataFrames.pdf).
+
 
 The report of the work have done is [here](Spark_DF-report.pdf).
 
